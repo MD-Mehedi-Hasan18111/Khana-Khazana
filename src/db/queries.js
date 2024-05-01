@@ -1,9 +1,11 @@
 import { Recipe } from "@/models/recipes";
 import { User } from "@/models/users";
+import { dbConnect } from "@/services/mongo";
 import { replaceMongoIdInArray, replaceMongoIdInObject } from "@/utils";
 import mongoose from "mongoose";
 
 async function createUser(user) {
+  await dbConnect();
   const isExistUser = await User.find({ email: user.email });
   if (!isExistUser) {
     return await User.create(user);
@@ -13,15 +15,21 @@ async function createUser(user) {
 }
 
 async function findUserByCredentials(credentials) {
-  const user = await User.findOne(credentials).lean();
-  if (user) {
-    return replaceMongoIdInObject(user);
+  try {
+    await dbConnect();
+    const user = await User.findOne(credentials).lean();
+    if (user) {
+      return replaceMongoIdInObject(user);
+    }
+    return null;
+  } catch (error) {
+    throw error;
   }
-  return null;
 }
 
 async function getAllRecipes() {
   try {
+    await dbConnect();
     const allRecipes = await Recipe.find().lean();
     return replaceMongoIdInArray(allRecipes);
   } catch (error) {
@@ -31,6 +39,7 @@ async function getAllRecipes() {
 
 async function getRecipesByCategory(categoryName) {
   try {
+    await dbConnect();
     const allRecipes = await Recipe.find({ category: categoryName }).lean();
     return replaceMongoIdInArray(allRecipes);
   } catch (error) {
@@ -40,6 +49,7 @@ async function getRecipesByCategory(categoryName) {
 
 async function getRecipeById(recipeId) {
   try {
+    await dbConnect();
     const recipe = await Recipe.findById(recipeId).lean();
     if (recipe) {
       return replaceMongoIdInObject(recipe);
@@ -51,6 +61,7 @@ async function getRecipeById(recipeId) {
 
 async function updateUserFavourites(recipeId, authUser) {
   try {
+    await dbConnect();
     const user = await User.findById(authUser.id);
 
     if (user) {

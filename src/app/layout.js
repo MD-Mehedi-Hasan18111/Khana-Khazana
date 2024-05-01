@@ -16,8 +16,7 @@ export const metadata = {
     "Appropriately integrate technically sound value with scalable infomediaries negotiate sustainable strategic theme areas",
 };
 
-export default async function RootLayout({ children }) {
-  await dbConnect();
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
